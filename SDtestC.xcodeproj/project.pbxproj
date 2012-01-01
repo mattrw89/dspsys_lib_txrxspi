@@ -9,6 +9,11 @@
 /* Begin PBXBuildFile section */
 		D30D25B4147DE0C200B6380A /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = D30D25B3147DE0C200B6380A /* main.c */; };
 		D30D25B6147DE0C200B6380A /* SDtestC.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = D30D25B5147DE0C200B6380A /* SDtestC.1 */; };
+		D3D8E63514A53BC80062EF2C /* ApiHandler.c in Sources */ = {isa = PBXBuildFile; fileRef = D3D8E63414A53BC80062EF2C /* ApiHandler.c */; };
+		D3DFE98314A1650E00C2FDB5 /* APICommand.c in Sources */ = {isa = PBXBuildFile; fileRef = D3DFE97714A1650E00C2FDB5 /* APICommand.c */; };
+		D3DFE98514A1650E00C2FDB5 /* channel.c in Sources */ = {isa = PBXBuildFile; fileRef = D3DFE97A14A1650E00C2FDB5 /* channel.c */; };
+		D3DFE98614A1650E00C2FDB5 /* comp.c in Sources */ = {isa = PBXBuildFile; fileRef = D3DFE97D14A1650E00C2FDB5 /* comp.c */; };
+		D3DFE98814A1650E00C2FDB5 /* eq.c in Sources */ = {isa = PBXBuildFile; fileRef = D3DFE98114A1650E00C2FDB5 /* eq.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,6 +33,17 @@
 		D30D25AF147DE0C200B6380A /* SDtestC */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SDtestC; sourceTree = BUILT_PRODUCTS_DIR; };
 		D30D25B3147DE0C200B6380A /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		D30D25B5147DE0C200B6380A /* SDtestC.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = SDtestC.1; sourceTree = "<group>"; };
+		D3D8E63414A53BC80062EF2C /* ApiHandler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ApiHandler.c; sourceTree = "<group>"; };
+		D3D8E63714A53BDC0062EF2C /* ApiHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ApiHandler.h; sourceTree = "<group>"; };
+		D3DFE97714A1650E00C2FDB5 /* APICommand.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = APICommand.c; sourceTree = "<group>"; };
+		D3DFE97814A1650E00C2FDB5 /* APICommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APICommand.h; sourceTree = "<group>"; };
+		D3DFE97A14A1650E00C2FDB5 /* channel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = channel.c; sourceTree = "<group>"; };
+		D3DFE97B14A1650E00C2FDB5 /* channel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = channel.h; sourceTree = "<group>"; };
+		D3DFE97C14A1650E00C2FDB5 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
+		D3DFE97D14A1650E00C2FDB5 /* comp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = comp.c; sourceTree = "<group>"; };
+		D3DFE97E14A1650E00C2FDB5 /* comp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = comp.h; sourceTree = "<group>"; };
+		D3DFE98114A1650E00C2FDB5 /* eq.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = eq.c; sourceTree = "<group>"; };
+		D3DFE98214A1650E00C2FDB5 /* eq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = eq.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,8 +76,19 @@
 		D30D25B2147DE0C200B6380A /* SDtestC */ = {
 			isa = PBXGroup;
 			children = (
+				D3DFE97714A1650E00C2FDB5 /* APICommand.c */,
+				D3DFE97814A1650E00C2FDB5 /* APICommand.h */,
+				D3DFE97A14A1650E00C2FDB5 /* channel.c */,
+				D3DFE97B14A1650E00C2FDB5 /* channel.h */,
+				D3DFE97C14A1650E00C2FDB5 /* common.h */,
+				D3DFE97D14A1650E00C2FDB5 /* comp.c */,
+				D3DFE97E14A1650E00C2FDB5 /* comp.h */,
+				D3DFE98114A1650E00C2FDB5 /* eq.c */,
+				D3DFE98214A1650E00C2FDB5 /* eq.h */,
 				D30D25B3147DE0C200B6380A /* main.c */,
 				D30D25B5147DE0C200B6380A /* SDtestC.1 */,
+				D3D8E63414A53BC80062EF2C /* ApiHandler.c */,
+				D3D8E63714A53BDC0062EF2C /* ApiHandler.h */,
 			);
 			path = SDtestC;
 			sourceTree = "<group>";
@@ -114,6 +141,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				D30D25B4147DE0C200B6380A /* main.c in Sources */,
+				D3DFE98314A1650E00C2FDB5 /* APICommand.c in Sources */,
+				D3DFE98514A1650E00C2FDB5 /* channel.c in Sources */,
+				D3DFE98614A1650E00C2FDB5 /* comp.c in Sources */,
+				D3DFE98814A1650E00C2FDB5 /* eq.c in Sources */,
+				D3D8E63514A53BC80062EF2C /* ApiHandler.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -198,6 +230,7 @@
 				D30D25BB147DE0C200B6380A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
