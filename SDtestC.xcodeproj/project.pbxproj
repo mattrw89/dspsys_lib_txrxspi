@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		D30D25B4147DE0C200B6380A /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = D30D25B3147DE0C200B6380A /* main.c */; };
 		D30D25B6147DE0C200B6380A /* SDtestC.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = D30D25B5147DE0C200B6380A /* SDtestC.1 */; };
+		D3D17EDC14B1247B00CBE9BF /* dsp_settings.c in Sources */ = {isa = PBXBuildFile; fileRef = D3D17EDB14B1247B00CBE9BF /* dsp_settings.c */; };
 		D3D8E63514A53BC80062EF2C /* ApiHandler.c in Sources */ = {isa = PBXBuildFile; fileRef = D3D8E63414A53BC80062EF2C /* ApiHandler.c */; };
 		D3DFE98314A1650E00C2FDB5 /* APICommand.c in Sources */ = {isa = PBXBuildFile; fileRef = D3DFE97714A1650E00C2FDB5 /* APICommand.c */; };
 		D3DFE98514A1650E00C2FDB5 /* channel.c in Sources */ = {isa = PBXBuildFile; fileRef = D3DFE97A14A1650E00C2FDB5 /* channel.c */; };
@@ -33,6 +34,8 @@
 		D30D25AF147DE0C200B6380A /* SDtestC */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SDtestC; sourceTree = BUILT_PRODUCTS_DIR; };
 		D30D25B3147DE0C200B6380A /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		D30D25B5147DE0C200B6380A /* SDtestC.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = SDtestC.1; sourceTree = "<group>"; };
+		D3D17ED914B1246D00CBE9BF /* dsp_settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dsp_settings.h; sourceTree = "<group>"; };
+		D3D17EDB14B1247B00CBE9BF /* dsp_settings.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dsp_settings.c; sourceTree = "<group>"; };
 		D3D8E63414A53BC80062EF2C /* ApiHandler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ApiHandler.c; sourceTree = "<group>"; };
 		D3D8E63714A53BDC0062EF2C /* ApiHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ApiHandler.h; sourceTree = "<group>"; };
 		D3DFE97714A1650E00C2FDB5 /* APICommand.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = APICommand.c; sourceTree = "<group>"; };
@@ -89,6 +92,8 @@
 				D30D25B5147DE0C200B6380A /* SDtestC.1 */,
 				D3D8E63414A53BC80062EF2C /* ApiHandler.c */,
 				D3D8E63714A53BDC0062EF2C /* ApiHandler.h */,
+				D3D17ED914B1246D00CBE9BF /* dsp_settings.h */,
+				D3D17EDB14B1247B00CBE9BF /* dsp_settings.c */,
 			);
 			path = SDtestC;
 			sourceTree = "<group>";
@@ -146,6 +151,7 @@
 				D3DFE98614A1650E00C2FDB5 /* comp.c in Sources */,
 				D3DFE98814A1650E00C2FDB5 /* eq.c in Sources */,
 				D3D8E63514A53BC80062EF2C /* ApiHandler.c in Sources */,
+				D3D17EDC14B1247B00CBE9BF /* dsp_settings.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

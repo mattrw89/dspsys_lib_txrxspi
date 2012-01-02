@@ -225,7 +225,10 @@ int main (int argc, const char * argv[])
     //initialize the handler variables
     struct ApiHandlerVars handler_vars;
     struct ApiCmdNode* tx2_stack = malloc(sizeof(struct ApiCmdNode));
+    
     Api_init_handler_vars(&handler_vars, tx2_stack);
+    
+    handler_vars.cmd_counter = 17;
     
     //let's transmit the read_1 api command
     //have it call callbackFunction upon reception of the corresponding value
@@ -236,6 +239,9 @@ int main (int argc, const char * argv[])
     
     Api_register_notif_callback(&handler_vars, notif_callback);
     Api_tx_all(&n1, &handler_vars, NULL);
+    
+    //Let's transmit a Write
+    Api_tx_all(&w1, &handler_vars, callbackFunction);
     
     
    

@@ -51,6 +51,7 @@ typedef struct ApiCommandType {
 	Feature_enum feature;
 	Param_enum param;
 	uint8_t cmd_count;
+    uint8_t retry_count;
 } ApiCmd;
 
 typedef struct ApiReadValueType {
@@ -88,6 +89,9 @@ uint8_t Api_get_cmd_count(ApiCmd *cmd);
 //API SETTERS
 void Api_set_callback(ApiCmd *cmd, void (*callback)(void*, float));
 void Api_set_cmd_count(ApiCmd *cmd, uint8_t cmd_count);
+void Api_set_retry_count(ApiCmd *cmd, uint8_t retry_count);
+void Api_inc_retry_count(ApiCmd *cmd);
+void Api_reset_retry_count(ApiCmd *cmd);
 
 //API FORMATTERS
 //Format Api Command styles for transmission

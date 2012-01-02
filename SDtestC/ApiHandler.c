@@ -9,7 +9,6 @@
 #include <stdio.h>
 
 #include "ApiHandler.h"
-#include "APICommand.h"
 
 /*////////////////////////////////////////////////////////////////////////
 ////////////                HANDLER GETTERS                 //////////////
@@ -51,10 +50,15 @@ void Api_init_handler_vars(struct ApiHandlerVars* vars, struct ApiCmdNode* head)
     vars->cmd_counter = 0;
     vars->reset_counter = 0;
     vars->head = head;
+    vars->failed_tx_counter = 0;
 }
 
 void Api_register_notif_callback(struct ApiHandlerVars* vars, void (*notif_callback)(ApiNot*)) {
     vars->notif_callback = notif_callback;
+}
+
+void Api_inc_failed_tx_counter(struct ApiHandlerVars* vars) {
+    (vars->failed_tx_counter++);
 }
 
 /*////////////////////////////////////////////////////////////////////////
@@ -101,8 +105,9 @@ uint8_t Api_tx_stack_delete(struct ApiCmdNode** head, uint8_t cmd_count) {
         //change previous & next pointers
         struct ApiCmdNode* previousNode = (struct ApiCmdNode*) removalNode->previous;
         struct ApiCmdNode* nextNode = (struct ApiCmdNode*) removalNode->next;
-        
-        previousNode->next = nextNode;
+        if(previousNode != NULL) {
+            previousNode->next = nextNode; 
+        }
         nextNode->previous = previousNode;
         
         //free node that it being removed from memory
@@ -116,6 +121,9 @@ uint8_t Api_tx_stack_delete(struct ApiCmdNode** head, uint8_t cmd_count) {
 }
 
 
+//locate a command node with a specified cmd_count
+//returns a pointer to the located node if found
+//upon no match, returns NULL;
 struct ApiCmdNode* Api_tx_stack_locate(struct ApiCmdNode** head, uint8_t cmd_count) {
     struct ApiCmdNode* current = *head;
 
@@ -133,12 +141,23 @@ struct ApiCmdNode* Api_tx_stack_locate(struct ApiCmdNode** head, uint8_t cmd_cou
     return NULL;
 }
 
+
+//locate an api cmd with a specified cmd_count
+//returns a pointer to the api cmd if found
+//upon no match, returns NULL;
 void* Api_tx_stack_locate_api_ptr(struct ApiCmdNode** head, uint8_t cmd_count) {
     struct ApiCmdNode* node = Api_tx_stack_locate(head, cmd_count);
-    return node->api_ptr;
+    if(node != NULL) {
+        return node->api_ptr;
+    } else {
+        return NULL;
+    }
+
 }
 
 
+//calculate the length of the stack
+//returns the length as a 16-bit unsigned integer (uint16_t)
 uint16_t Api_tx_stack_length(struct ApiCmdNode* head) {
     uint16_t count = 0;
     struct ApiCmdNode* current = head;
@@ -173,18 +192,27 @@ uint8_t Api_rx_all(char* chars, struct ApiHandlerVars* vars) {
         case READ: {
             ApiRead read;
             ApiRead_rector(&read, rx_chars);
-            float return_value = 10000.01;  //(float) dsp_get_value(1, INPUT, EQB1, FREQ);
+            float return_value = dsp_read_value(&read);
             
             ApiAck ack;
-            ApiAck_ctor(&ack, read.super.cmd_count , return_value);
+            ApiAck_ctor(&ack, Api_get_cmd_count(&(read.super)) , return_value);
             Api_tx_all(&ack, vars, NULL);
             break;   
         }
             
         case WRITE: {
+            float return_value;
             ApiWrite write;
             ApiWrite_rector(&write, rx_chars);
+            if(dsp_write_value(&write)) {
+                return_value = write.value;
+            } else {
+                return_value = 99999.99;
+            }
             
+            ApiAck ack;
+            ApiAck_ctor(&ack, Api_get_cmd_count(&(write.super)) , return_value);
+            Api_tx_all(&ack, vars, NULL);
             break;
         }
             
@@ -206,12 +234,14 @@ uint8_t Api_rx_all(char* chars, struct ApiHandlerVars* vars) {
         case ACK: {
             ApiAck ack;
             ApiAck_rector(&ack, rx_chars);
-            void* api_ptr = Api_tx_stack_locate_api_ptr(&(vars->head), ack.super.cmd_count);
+            void* api_ptr = Api_tx_stack_locate_api_ptr(&(vars->head), Api_get_cmd_count(&(ack.super)));
             Type_enum* api_cmd_type = (Type_enum*) api_ptr;
             
             if ( *api_cmd_type == READ ) {
                 ApiRead* read_match = (ApiRead*) api_ptr;
                 void (*callback)(void*, float) = Api_get_callback(&(read_match->super));
+                //remove the read from the tx stack
+                Api_tx_stack_delete(&(vars->head), Api_get_cmd_count(&(read_match->super)));
                 (*callback)(read_match, ack.value);
                 //TODO where do I free it?
                 //free(read_match);
@@ -220,15 +250,25 @@ uint8_t Api_rx_all(char* chars, struct ApiHandlerVars* vars) {
                 ApiWrite* write_match = (ApiWrite*) api_ptr;
                 void (*callback)(void*, float) = Api_get_callback(&(write_match->super));
                 if ( (write_match->value) == (ack.value) ) {
+                    //remove the write from the tx stack
+                    Api_tx_stack_delete(&(vars->head), Api_get_cmd_count(&(write_match->super)));
+                    
                     //call the callback!  Set float param to 1 for success
                     (*callback)(write_match, 1);
                     //free it because we're done with it.  TODO: is this the right place to free?
-                    free(write_match);
+                    //free(write_match);
                 } else {
                     //oh dear.  Command didn't write correctly to slave
                     //So, transmit again.  TODO:  Can I recursively call this OK?
                     //TODO:  does anything else need to be free'd here?
-                    Api_tx_all(api_ptr, vars, callback);
+                    //let's just retry 5 times. If still failing after 5, increment our tx failure counter
+                    if((write_match->super.retry_count) < 5) {
+                        Api_inc_retry_count(&(write_match->super));
+                        Api_tx_all(api_ptr, vars, callback); 
+                    } else {
+                        Api_inc_failed_tx_counter(vars);
+                    }
+
                 }
                 
             } else {

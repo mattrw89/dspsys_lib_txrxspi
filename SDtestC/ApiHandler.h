@@ -12,6 +12,7 @@
 #include "channel.h"
 #include "APICommand.h"
 #include "common.h"
+#include "dsp_settings.h"
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -28,6 +29,7 @@ struct ApiHandlerVars {
     uint16_t reset_counter;
     void (*notif_callback) (ApiNot*);//Pointer to function to handle notification callbacks
     struct ApiCmdNode *head;
+    uint16_t failed_tx_counter;
 };
 
 
@@ -41,7 +43,8 @@ void* Api_get_notif_callback (struct ApiHandlerVars* vars);
 void Api_set_cmd_counter(struct ApiHandlerVars* vars, uint8_t value);
 void Api_inc_cmd_counter(struct ApiHandlerVars* vars);
 void Api_init_handler_vars(struct ApiHandlerVars* vars, struct ApiCmdNode* head); 
-void Api_register_notif_callback(struct ApiHandlerVars* vars, void (*notif_callback)(ApiNot*)); 
+void Api_register_notif_callback(struct ApiHandlerVars* vars, void (*notif_callback)(ApiNot*));
+void Api_inc_failed_tx_counter(struct ApiHandlerVars* vars);
 
 
 //Api Command Stack Management Functions

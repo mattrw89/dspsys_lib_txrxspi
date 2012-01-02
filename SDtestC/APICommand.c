@@ -20,6 +20,7 @@ void ApiCmd_ctor(ApiCmd *cmd, Type_enum type, uint8_t channel, Io_enum io, Featu
 	cmd->chan_io = io;
 	cmd->feature = feature;
 	cmd->param = param;
+    cmd->retry_count = 0;
 }
 
 void ApiRead_ctor(ApiRead *read, uint8_t channel, Io_enum io, Feature_enum feature, Param_enum param) {
@@ -67,6 +68,18 @@ void Api_set_callback(ApiCmd *cmd, void (*callback)(void*, float)) {
 
 void Api_set_cmd_count(ApiCmd *cmd, uint8_t cmd_count) {
     cmd->cmd_count = cmd_count;
+}
+
+void Api_set_retry_count(ApiCmd *cmd, uint8_t retry_count) {
+    cmd->retry_count = retry_count;
+}
+
+void Api_inc_retry_count(ApiCmd *cmd) {
+    cmd->retry_count = cmd->retry_count + 1;
+}
+
+void Api_reset_retry_count(ApiCmd *cmd) {
+    cmd->retry_count = 0;
 }
 
 
