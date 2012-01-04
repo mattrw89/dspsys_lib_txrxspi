@@ -72,14 +72,9 @@ void Api_tx_stack_push(struct ApiCmdNode** head,
     newNode->cmd_count = cmd_count;
     newNode->api_ptr = api_ptr;
     newNode->next = *head;
-    newNode->previous = NULL;
     *head = newNode;
-    struct ApiCmdNode* oldHead = (struct ApiCmdNode*)&head;
-    oldHead->previous = newNode;
-    //set previous for old head! 
 }
 
-//
 void Api_tx_stack_append(struct ApiCmdNode** head,
                                        void* api_ptr, uint8_t cmd_count) {
     struct ApiCmdNode* current = *head;
@@ -94,31 +89,49 @@ void Api_tx_stack_append(struct ApiCmdNode** head,
     }
 }
 
-//Remove an api cmd from the stack
-//Returns 1 for success, 0 for deletion failure
-uint8_t Api_tx_stack_delete(struct ApiCmdNode** head, uint8_t cmd_count) {
-    //locate the node that needs to be deleted
-    struct ApiCmdNode* removalNode =  Api_tx_stack_locate(head, cmd_count);
-    
-    //check if removalNode was even found
-    if (removalNode != NULL) {
-        //change previous & next pointers
-        struct ApiCmdNode* previousNode = (struct ApiCmdNode*) removalNode->previous;
-        struct ApiCmdNode* nextNode = (struct ApiCmdNode*) removalNode->next;
-        if(previousNode != NULL) {
-            previousNode->next = nextNode; 
-        }
-        nextNode->previous = previousNode;
-        
-        //free node that it being removed from memory
-        free(removalNode);
-        return 1;
-    } else {
-        return 0;
-    }
-    
 
+struct ApiCmdNode* Api_tx_stack_delete(struct ApiCmdNode* currP, uint8_t value) {
+    /* See if we are at end of list. */
+    if (currP == NULL) {
+        return NULL;
+    } else {
+        
+        if(currP->cmd_count == value) {
+            struct ApiCmdNode *tempNextP;
+        
+        /* Save the next pointer in the node. */
+            tempNextP = currP->next;
+        
+        /* Deallocate the node. */
+            free(currP);
+        
+        /*
+         * Return the NEW pointer to where we
+         * were called from.  I.e., the pointer
+         * the previous call will use to "skip
+         * over" the removed node.
+         */
+            return tempNextP;
+        } else {
+    
+    /*
+     * Check the rest of the list, fixing the next
+     * pointer in case the next node is the one
+     * removed.
+     */
+            currP->next = Api_tx_stack_delete(currP->next, value);
+    
+    
+    /*
+     * Return the pointer to where we were called
+     * from.  Since we did not remove this node it
+     * will be the same.
+     */
+            return currP;
+        }
+    }
 }
+
 
 
 //locate a command node with a specified cmd_count
@@ -241,7 +254,7 @@ uint8_t Api_rx_all(char* chars, struct ApiHandlerVars* vars) {
                 ApiRead* read_match = (ApiRead*) api_ptr;
                 void (*callback)(void*, float) = Api_get_callback(&(read_match->super));
                 //remove the read from the tx stack
-                Api_tx_stack_delete(&(vars->head), Api_get_cmd_count(&(read_match->super)));
+                Api_tx_stack_delete(vars->head, Api_get_cmd_count(&(read_match->super)));
                 (*callback)(read_match, ack.value);
                 //TODO where do I free it?
                 //free(read_match);
@@ -251,7 +264,7 @@ uint8_t Api_rx_all(char* chars, struct ApiHandlerVars* vars) {
                 void (*callback)(void*, float) = Api_get_callback(&(write_match->super));
                 if ( (write_match->value) == (ack.value) ) {
                     //remove the write from the tx stack
-                    Api_tx_stack_delete(&(vars->head), Api_get_cmd_count(&(write_match->super)));
+                    Api_tx_stack_delete(vars->head, Api_get_cmd_count(&(write_match->super)));
                     
                     //call the callback!  Set float param to 1 for success
                     (*callback)(write_match, 1);

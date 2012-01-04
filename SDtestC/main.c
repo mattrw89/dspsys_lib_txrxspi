@@ -232,6 +232,7 @@ int main (int argc, const char * argv[])
     
     //let's transmit the read_1 api command
     //have it call callbackFunction upon reception of the corresponding value
+    
     Api_tx_all(&r1, &handler_vars, callbackFunction);
     
     
@@ -244,21 +245,20 @@ int main (int argc, const char * argv[])
     Api_tx_all(&w1, &handler_vars, callbackFunction);
     
     
-   
-    
-    
-    
     //Now, Let's test out that stack list
     struct ApiCmdNode* tx_stack = malloc(sizeof(struct ApiCmdNode));
+    tx_stack->cmd_count = 5;
     tx_stack->next = NULL;
-    tx_stack->previous = NULL;
-    tx_stack->api_ptr = &r2;
-    tx_stack->cmd_count = r2.super.cmd_count;
     
+    Api_tx_stack_push(&tx_stack, &r1, r1.super.cmd_count);
     Api_tx_stack_push(&tx_stack, &a1, a1.super.cmd_count);
     Api_tx_stack_append(&tx_stack, &w1, w1.super.cmd_count);
     
-    struct ApiCmdNode* match = Api_tx_stack_locate(&tx_stack, r2.super.cmd_count);
+    printf("cmd counts: %d %d %d\n", r2.super.cmd_count, a1.super.cmd_count, w1.super.cmd_count);
+    printf("length of stack: %d\n\n", Api_tx_stack_length(tx_stack));
+    printf("next: %d %d %d\n", (int) tx_stack->next, a1.super.cmd_count, w1.super.cmd_count);
+    
+    struct ApiCmdNode* match = Api_tx_stack_locate(&tx_stack, r1.super.cmd_count);
     
     if (match != NULL) {
         ApiAck* matching = (ApiAck*) match->api_ptr;
@@ -266,6 +266,10 @@ int main (int argc, const char * argv[])
     } else {
         printf("\nNo match found\n");
     }
+    
+
+    tx_stack = Api_tx_stack_delete(tx_stack, w1.super.cmd_count);
+    printf("length of stack: %d\n\n", Api_tx_stack_length(tx_stack));
     
     printf("All done!");
 

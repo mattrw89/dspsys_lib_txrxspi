@@ -20,17 +20,17 @@ struct ApiCmdNode {
     void* api_ptr;
     uint8_t cmd_count;
     struct ApiCmdNode* next;
-    struct ApiCmdNode* previous;
-    
 };
 
 struct ApiHandlerVars {
     uint8_t cmd_counter;
     uint16_t reset_counter;
-    void (*notif_callback) (ApiNot*);//Pointer to function to handle notification callbacks
+    void (*notif_callback) (ApiNot*);  //Pointer to function to handle notification callbacks
     struct ApiCmdNode *head;
     uint16_t failed_tx_counter;
 };
+
+
 
 
 //Getters
@@ -51,7 +51,7 @@ void Api_inc_failed_tx_counter(struct ApiHandlerVars* vars);
 
 void Api_tx_stack_push(struct ApiCmdNode** head, void* api_ptr, uint8_t cmd_count);
 void Api_tx_stack_append(struct ApiCmdNode** head, void* api_ptr, uint8_t cmd_count);
-uint8_t Api_tx_stack_delete(struct ApiCmdNode** head, uint8_t cmd_count);
+struct ApiCmdNode* Api_tx_stack_delete(struct ApiCmdNode* currP, uint8_t value);
 struct ApiCmdNode* Api_tx_stack_locate(struct ApiCmdNode** head, uint8_t cmd_count);
 void* Api_tx_stack_locate_api_ptr(struct ApiCmdNode** head, uint8_t cmd_count);
 uint16_t Api_tx_stack_length(struct ApiCmdNode* head);
