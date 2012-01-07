@@ -10,7 +10,7 @@
 #define SDtestC_dsp_settings_h
 
 #include <stdint.h>
-#include "common.h"
+#include "../dspsys_lib_channel/common.h"
 #include "APICommand.h"
 
 float dsp_read_value(ApiRead* read);

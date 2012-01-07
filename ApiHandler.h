@@ -11,8 +11,8 @@
 
 #include "../dspsys_lib_channel/channel.h"
 #include "APICommand.h"
-#include "common.h"
-#include "dsp_settings.h"
+#include "../dspsys_lib_channel/common.h"
+#include "../dspsys_lib_txrxspi/dsp_settings.h"
 #include <stdint.h>
 #include <stdlib.h>
 

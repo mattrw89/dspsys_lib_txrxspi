@@ -8,7 +8,7 @@
 #ifndef APICOMMAND_H_
 #define APICOMMAND_H_
 #include <stdint.h>
-#include "common.h"
+#include "../dspsys_lib_channel/common.h"
 #include <stdlib.h>
 
 
