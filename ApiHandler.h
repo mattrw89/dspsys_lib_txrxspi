@@ -9,7 +9,7 @@
 #ifndef SDtestC_ApiHandler_h
 #define SDtestC_ApiHandler_h
 
-#include "channel.h"
+#include "../dspsys_lib_channel/channel.h"
 #include "APICommand.h"
 #include "common.h"
 #include "dsp_settings.h"
