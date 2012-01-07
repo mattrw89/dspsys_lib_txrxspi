@@ -13,7 +13,7 @@ float dsp_read_value(ApiRead* read) {
     //aka channel, channel i/o, feature, param
     //return the corresponding value as a float
     //may need to cast as float just to be safe!
-    return (float) 4.51;
+    return (float) 14578.51;
 }
 
 uint8_t dsp_write_value(ApiWrite* write) {
