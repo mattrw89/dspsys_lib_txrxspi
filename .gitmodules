@@ -1,0 +1,3 @@
+[submodule "dspsys_lib_channel"]
+	path = dspsys_lib_channel
+	url = ../dspsys_lib_channel
