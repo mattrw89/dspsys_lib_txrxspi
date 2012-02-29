@@ -10,9 +10,9 @@
 #include "APICommand.h"
 
 
-/*////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 ////////////                 API CONSTRUCTORS               //////////////
-////////////////////////////////////////////////////////////////////////*/
+//////////////////////////////////////////////////////////////////////////
 
 void ApiCmd_ctor(ApiCmd *cmd, Type_enum type, uint8_t channel, Io_enum io, Feature_enum feature, Param_enum param) {
 	cmd->type = type;
@@ -47,9 +47,9 @@ void ApiNot_ctor(ApiNot *not, uint8_t channel, Io_enum io, Feature_enum feature,
     not->message = message;
 }
 
-/*////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 ////////////                  API GETTERS                   //////////////
-////////////////////////////////////////////////////////////////////////*/
+//////////////////////////////////////////////////////////////////////////
 
 void* Api_get_callback(ApiCmd *cmd) {
     return cmd->callback;
@@ -59,9 +59,9 @@ uint8_t Api_get_cmd_count(ApiCmd *cmd) {
     return cmd->cmd_count;
 }
 
-/*////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 ////////////                  API SETTERS                   //////////////
-////////////////////////////////////////////////////////////////////////*/
+//////////////////////////////////////////////////////////////////////////
 void Api_set_callback(ApiCmd *cmd, void (*callback)(void*, float)) {
     cmd->callback = callback;
 }
@@ -84,9 +84,9 @@ void Api_reset_retry_count(ApiCmd *cmd) {
 
 
 
-/*////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 ////////////                 API FORMATTERS                 //////////////
-////////////////////////////////////////////////////////////////////////*/
+//////////////////////////////////////////////////////////////////////////
 
 //Format an ApiRead object into 3 bytes
 void ApiRead_frmtr(ApiRead *cmd, char *formatted) {
@@ -165,16 +165,16 @@ void ApiNot_frmtr(ApiNot *cmd, char *formatted) {
 }
 
 
-/*////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 ////////////               API RECONSTRUCTORS               //////////////
-////////////////////////////////////////////////////////////////////////*/
+//////////////////////////////////////////////////////////////////////////
 
 //Reconstruct an ApiRead object from 3 bytes
 void ApiRead_rector(ApiRead *cmd, char *formatted) {
     //use first char to get channel number and io status with Api_decode_x functions
     //get feature and param from 2nd byte
-    Feature_enum feat = (formatted[1] & 0xF0) >> 4;
-    Param_enum param  = formatted[1] & 0x0F;
+    Feature_enum feat = (Feature_enum) ((formatted[1] & 0xF0) >> 4);
+    Param_enum param  = (Param_enum) (formatted[1] & 0x0F);
     
     ApiRead_ctor(cmd, Api_decode_channel(formatted[0]), Api_decode_io(formatted[0]), feat, param);
     
@@ -186,8 +186,8 @@ void ApiRead_rector(ApiRead *cmd, char *formatted) {
 void ApiWrite_rector(ApiWrite *cmd, char *formatted) {
     //use first char to get channel number and io status with Api_decode_x functions
     //get feature and param from 2nd byte
-    Feature_enum feat = (formatted[1] & 0xF0) >> 4;
-    Param_enum param  = formatted[1] & 0x0F;
+    Feature_enum feat = (Feature_enum) ((formatted[1] & 0xF0) >> 4);
+    Param_enum param  = (Param_enum) (formatted[1] & 0x0F);
     
     //bytes 3 through 6 contain the floating point value
     volatile CONVERTER Converter;
@@ -218,16 +218,16 @@ void ApiAck_rector(ApiAck *cmd, char *formatted) {
 void ApiNot_rector(ApiNot *cmd, char *formatted) {
     //use first char to get channel number and io status with Api_decode_x functions
     //get feature and param from 2nd byte
-    Feature_enum feat = (formatted[1] & 0xF0) >> 4;
+    Feature_enum feat = (Feature_enum) ((formatted[1] & 0xF0) >> 4);
     uint8_t message  = formatted[1] & 0x0F;
     
     ApiNot_ctor(cmd, Api_decode_channel(formatted[0]), Api_decode_io(formatted[0]), feat, message);
 }
 
 
-/*////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 ////////////                 API ENCODERS                   //////////////
-////////////////////////////////////////////////////////////////////////*/
+//////////////////////////////////////////////////////////////////////////
 
 //Output a single byte containing Api command type, channel number, and io status
 char Api_common_front(ApiCmd *cmd) {
@@ -244,9 +244,9 @@ char Api_common_front(ApiCmd *cmd) {
 }
 
 
-/*/////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 ////////////               API BYTE DECODERS                //////////////
-////////////////////////////////////////////////////////////////////////*/
+//////////////////////////////////////////////////////////////////////////
 
 //Return channel from Api_common_front style byte
 uint8_t Api_decode_channel(char x) {
@@ -255,12 +255,12 @@ uint8_t Api_decode_channel(char x) {
 
 //Return message type from Api_common_front style byte
 Type_enum Api_decode_type(char x) {
-    return (Type_enum) (x & 0xC0) >> 6;
+    return (Type_enum) ((x & 0xC0) >> 6);
 }
 
 //Return io status from Api_common_front style byte
 Io_enum Api_decode_io(char x) {
-    return (Io_enum) (x & 0x02) >> 1;
+    return (Io_enum) ((x & 0x02) >> 1);
 }
 
 Feature_enum Api_decode_feature(char x) {
@@ -274,9 +274,9 @@ Param_enum Api_decode_param(char x) {
 
 
 
-/*/////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 ////////////               API INSPECTION TOOLS              //////////////
-/////////////////////////////////////////////////////////////////////////*/
+///////////////////////////////////////////////////////////////////////////
 
 void ApiCmd_inspect(ApiCmd *cmd) {
     printf("type: %d\n", (int) cmd->type);
