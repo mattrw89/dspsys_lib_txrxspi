@@ -188,8 +188,9 @@ uint16_t Api_tx_stack_length(struct ApiCmdNode* head) {
 //////////////////////////////////////////////////////////////////////////
 
 
-uint8_t Api_rx_all(char* chars, struct ApiHandlerVars* vars) {
-    char rx_chars[7];
+uint8_t Api_rx_all(char* chars){ //, struct ApiHandlerVars* vars) {
+    struct ApiHandlerVars* vars = global_api_handler(0);
+    char rx_chars[8];
 
     rx_chars[0] = chars[0];
     rx_chars[1] = chars[1];
@@ -198,6 +199,7 @@ uint8_t Api_rx_all(char* chars, struct ApiHandlerVars* vars) {
     rx_chars[4] = chars[4];
     rx_chars[5] = chars[5];
     rx_chars[6] = chars[6];
+    rx_chars[7] = 0;
     
     Type_enum type = Api_decode_type(rx_chars[0]);
     
@@ -205,11 +207,12 @@ uint8_t Api_rx_all(char* chars, struct ApiHandlerVars* vars) {
         case READ: {
             ApiRead read;
             ApiRead_rector(&read, rx_chars);
+            
             float return_value = dsp_read_value(&read);
             
             ApiAck ack;
             ApiAck_ctor(&ack, Api_get_cmd_count(&(read.super)) , return_value);
-            Api_tx_all(&ack, vars, NULL);
+            Api_tx_all(&ack);
             break;   
         }
             
@@ -225,7 +228,7 @@ uint8_t Api_rx_all(char* chars, struct ApiHandlerVars* vars) {
             
             ApiAck ack;
             ApiAck_ctor(&ack, Api_get_cmd_count(&(write.super)) , return_value);
-            Api_tx_all(&ack, vars, NULL);
+            Api_tx_all(&ack);
             break;
         }
             
@@ -257,7 +260,7 @@ uint8_t Api_rx_all(char* chars, struct ApiHandlerVars* vars) {
                 Api_tx_stack_delete(vars->head, Api_get_cmd_count(&(read_match->super)));
                 (*callback)(read_match, ack.value);
                 //TODO where do I free it?
-                //free(read_match);
+                free(read_match);
                 
             } else if ( *api_cmd_type == WRITE ) {
                 ApiWrite* write_match = (ApiWrite*) api_ptr;
@@ -277,7 +280,7 @@ uint8_t Api_rx_all(char* chars, struct ApiHandlerVars* vars) {
                     //let's just retry 5 times. If still failing after 5, increment our tx failure counter
                     if((write_match->super.retry_count) < 5) {
                         Api_inc_retry_count(&(write_match->super));
-                        Api_tx_all(api_ptr, vars, callback); 
+                        Api_tx_all(api_ptr);//, callback); TODO: rewrite callback
                     } else {
                         Api_inc_failed_tx_counter(vars);
                     }
@@ -303,20 +306,21 @@ uint8_t Api_rx_all(char* chars, struct ApiHandlerVars* vars) {
 ////////////             HANDLER TRANSMITTERS               //////////////
 //////////////////////////////////////////////////////////////////////////
 
-uint8_t Api_tx_all(void* api_ptr, struct ApiHandlerVars* vars, void(*callback)(void*, float)) {
+uint8_t Api_tx_all(void* api_ptr) { //, struct ApiHandlerVars* vars){//, void(*callback)(void*, float)) {
+    struct ApiHandlerVars* vars = global_api_handler(0);
     
     //First, need to identify the type of api command being passed in
     Type_enum* api_type = (Type_enum*) api_ptr;
     
     //create a variable to place the formatted api_cmd type in
-    char formatted[7];
+    char formatted[8] = {0,0,0,0,0,0,0,0};
     
     switch (*api_type) {
         case READ: {
             //recover the ApiRead object from a pointer
             ApiRead* read = (ApiRead*) api_ptr;
             //setup the function to be called when response is received
-            Api_set_callback(&(read->super), callback);
+         //Api_set_callback(&(read->super), callback);
             //Set the cmd_count var & increment it
             Api_set_cmd_count(&(read->super), Api_get_inc_cmd_counter(vars));
             //convert ApiRead object to char array for transmission
@@ -326,7 +330,7 @@ uint8_t Api_tx_all(void* api_ptr, struct ApiHandlerVars* vars, void(*callback)(v
             Api_tx_stack_push(&(vars->head), read, (read->super).cmd_count);
             
             //check for successful transmission (if spi_transmit=1)
-            if( !(spi_transmit(formatted, vars)) ) {  
+            if( !uart_transmit(formatted, 8) ) {  
                 //Condition where TX is NOT successful  TODO
             }
             
@@ -335,7 +339,7 @@ uint8_t Api_tx_all(void* api_ptr, struct ApiHandlerVars* vars, void(*callback)(v
             
         case WRITE: {
             ApiWrite* write = (ApiWrite*) api_ptr;
-            Api_set_callback(&(write->super), callback);
+        //Api_set_callback(&(write->super), callback);
             //Set the cmd_count var & increment it
             Api_set_cmd_count(&(write->super), Api_get_inc_cmd_counter(vars));
             ApiWrite_frmtr(write, formatted);
@@ -344,7 +348,7 @@ uint8_t Api_tx_all(void* api_ptr, struct ApiHandlerVars* vars, void(*callback)(v
             Api_tx_stack_push(&(vars->head), write, (write->super).cmd_count);
             
             //check for successful transmission (if spi_transmit=1)
-            if( !(spi_transmit(formatted, vars)) ) { 
+            if( !uart_transmit(formatted, 8) ) { 
                 //Condition where TX is NOT successful TODO
             }
 
@@ -354,7 +358,7 @@ uint8_t Api_tx_all(void* api_ptr, struct ApiHandlerVars* vars, void(*callback)(v
             ApiAck *ackn = (ApiAck*) api_ptr;
             ApiAck_frmtr(ackn, formatted);
             //check for successful transmission (if spi_transmit=1)
-            if( !(spi_transmit(formatted, vars)) ) { 
+            if( !uart_transmit(formatted, 8) ) { 
                 //Condition where TX is NOT successful  TODO
             }
 
@@ -365,7 +369,7 @@ uint8_t Api_tx_all(void* api_ptr, struct ApiHandlerVars* vars, void(*callback)(v
             ApiNot *notif = (ApiNot*) api_ptr;
             ApiNot_frmtr(notif, formatted);
             //check for successful transmission (if spi_transmit=1)
-            if( !(spi_transmit(formatted, vars)) ) { 
+            if( !uart_transmit(formatted, 8) ) { 
                 //Condition where TX is NOT successful  TODO
             }
             //callback? TODO
@@ -379,10 +383,76 @@ uint8_t Api_tx_all(void* api_ptr, struct ApiHandlerVars* vars, void(*callback)(v
     return 1;
 }
 
-uint8_t spi_transmit(char* formatted, struct ApiHandlerVars* vars) {
-    //FOR TESTING PURPOSES ONLY
-    Api_rx_all(formatted, vars);
-    
-    return 1;
+uint8_t Api_set_eqband_type(Channel* chan, uint8_t bandNum, Eq_type_enum type) {
+	eqband_set_type(channel_get_eqband(chan, bandNum), type);
+	ApiWrite* cmd = malloc(sizeof(ApiWrite));
+	Feature_enum feature =  (Feature_enum)bandNum;
+	
+	ApiWrite_ctor(cmd,  chan->chan_num, chan->io, feature, TYPE, type); 
+	Api_set_callback(cmd, callbackFunction);	
+	Api_add_cmd_to_cb((void*)cmd);
+	return 1;
 }
 
+uint8_t Api_set_eqband_bw(Channel* chan, uint8_t bandNum, float q) {
+	eqband_set_bw(channel_get_eqband(chan, bandNum), q);
+	ApiWrite* cmd = malloc(sizeof(ApiWrite));
+	Feature_enum feature =  (Feature_enum)bandNum;
+	
+	ApiWrite_ctor(cmd, chan->chan_num, chan->io, feature, BW, q); 
+	Api_set_callback(cmd, callbackFunction);	
+	Api_add_cmd_to_cb((void*)cmd);
+	return 1;
+}
+
+uint8_t Api_set_eqband_freq(Channel* chan, uint8_t bandNum, float freq) {
+	eqband_set_freq(channel_get_eqband(chan, bandNum), freq);
+	ApiWrite* cmd = malloc(sizeof(ApiWrite));
+	Feature_enum feature =  (Feature_enum)bandNum;
+	
+	ApiWrite_ctor(cmd, chan->chan_num, chan->io, feature, FREQ, freq); 
+	Api_set_callback(cmd, callbackFunction);	
+	Api_add_cmd_to_cb((void*)cmd);
+	return 1;
+}
+
+uint8_t Api_set_eqband_gain(Channel* chan, uint8_t bandNum, float gain) {
+	eqband_set_gain(channel_get_eqband(chan, bandNum), gain);
+	ApiWrite* cmd = malloc(sizeof(ApiWrite));
+	Feature_enum feature =  (Feature_enum)bandNum;
+	
+	ApiWrite_ctor(cmd, chan->chan_num, chan->io, feature, GAIN, gain); 
+	Api_set_callback(cmd, callbackFunction);	
+	Api_add_cmd_to_cb((void*)cmd);
+	return 1;
+}
+
+uint8_t Api_enable_eqband(Channel* chan, uint8_t bandNum) {
+	eqband_enable(channel_get_eqband(chan, bandNum));
+	ApiWrite* cmd = malloc(sizeof(ApiWrite));
+	Feature_enum feature =  (Feature_enum)bandNum;
+	
+	ApiWrite_ctor(cmd,  chan->chan_num, chan->io, feature, EN, ENABLED); 
+	Api_set_callback(cmd, callbackFunction);	
+	Api_add_cmd_to_cb((void*)cmd);	
+	return 1;
+}
+uint8_t Api_disable_eqband(Channel* chan, uint8_t bandNum) {
+	eqband_disable(channel_get_eqband(chan, bandNum));
+	ApiWrite* cmd = malloc(sizeof(ApiWrite));
+	Feature_enum feature =  (Feature_enum)bandNum;
+	
+	ApiWrite_ctor(cmd,  chan->chan_num, chan->io, feature, EN, DISABLED); 
+	Api_set_callback(cmd, callbackFunction);
+	Api_add_cmd_to_cb((void*)cmd);
+	return 1;
+}
+
+uint8_t Api_add_cmd_to_cb(void* api_ptr) {
+	struct ApiHandlerVars* handler = global_api_handler(0);
+	ElemType elem;
+    elem.value = api_ptr;
+
+    cbWrite(&(handler->tx_buffer), &elem);
+    return 1;
+}

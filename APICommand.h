@@ -20,7 +20,7 @@ typedef enum Type_enum {
 } Type_enum;
 
 typedef enum Feature_enum {
-	NOF = 0,
+	NOF  = 0,
 	EQB1 = 1,
 	EQB2 = 2,
 	EQB3 = 3,
@@ -31,8 +31,8 @@ typedef enum Feature_enum {
 } Feature_enum;
 
 typedef enum Param_enum {
-	NOP      = 0,
-	ENABLE    = 1,
+	NOP       = 0,
+	EN        = 1,
 	GAIN      = 2,
 	BW        = 3,
 	FREQ      = 4,

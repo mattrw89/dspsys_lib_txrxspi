@@ -9,12 +9,19 @@
 #ifndef SDtestC_ApiHandler_h
 #define SDtestC_ApiHandler_h
 
+#include "inc/hw_types.h"
+#include "inc/hw_memmap.h"
 #include "../dspsys_lib_channel/channel.h"
 #include "APICommand.h"
 #include "../dspsys_lib_channel/common.h"
 #include "../dspsys_lib_txrxspi/dsp_settings.h"
 #include <stdint.h>
 #include <stdlib.h>
+#include "driverlib/uart.h"
+#include "../circbuff/circbuff.h"
+#include "../uart/uart.h"
+#include "../dspsys_lib_channel/eq.h"
+#include "global.h"
 
 struct ApiCmdNode {
     void* api_ptr;
@@ -28,6 +35,7 @@ struct ApiHandlerVars {
     void (*notif_callback) (ApiNot*);  //Pointer to function to handle notification callbacks
     struct ApiCmdNode *head;
     uint16_t failed_tx_counter;
+    CircularBuffer tx_buffer;
 };
 
 
@@ -64,7 +72,7 @@ uint16_t Api_tx_stack_length(struct ApiCmdNode* head);
 //Check to ensure that it is the right number of bytes in length according to type
 //Check that all values are within bounds
 //
-uint8_t Api_rx_all(char* chars, struct ApiHandlerVars* vars);
+uint8_t Api_rx_all(char* chars);//, struct ApiHandlerVars* vars);
 
 
 
@@ -72,11 +80,18 @@ uint8_t Api_rx_all(char* chars, struct ApiHandlerVars* vars);
 
 //Takes in an ApiCmd based object & function pointer (callback)
 //output 1 (transmit done) or 0 (transmit failed)
-uint8_t Api_tx_all(void* api_ptr, struct ApiHandlerVars* vars, void(*callback)(void*, float));
-
-uint8_t spi_transmit(char* formatted, struct ApiHandlerVars* vars);
+uint8_t Api_tx_all(void* api_ptr);//, struct ApiHandlerVars* vars);//, void(*callback)(void*, float));
 
 
-void callbackFunction(void* aa, float bb);  // can be deleted after testing (used in main.c)
 
+//Modify DSP Parameter & Transmit Functions
+
+uint8_t Api_set_eqband_type(Channel* chan, uint8_t bandNum, Eq_type_enum type);
+uint8_t Api_set_eqband_bw(Channel* chan, uint8_t bandNum, float q);
+uint8_t Api_set_eqband_freq(Channel* chan, uint8_t bandNum, float freq);
+uint8_t Api_set_eqband_gain(Channel* chan, uint8_t bandNum, float gain);
+uint8_t Api_enable_eqband(Channel* chan, uint8_t bandNum);
+uint8_t Api_disable_eqband(Channel* chan, uint8_t bandNum);
+
+uint8_t Api_add_cmd_to_cb(void* api_ptr);
 #endif
